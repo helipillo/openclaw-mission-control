@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, ArrowRight, Folder, Users, CheckSquare, Trash2, AlertTriangle, Activity } from 'lucide-react';
+import { Plus, ArrowRight, Folder, Users, CheckSquare, Trash2, AlertTriangle, Activity, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import type { WorkspaceStats } from '@/lib/types';
 
@@ -53,11 +53,18 @@ export function WorkspaceDashboard() {
           </div>
           <div className="flex items-center gap-3">
             <Link
+              href="/comms"
+              className="mc-button-secondary py-2 text-sm"
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span className="hidden sm:inline">Comms</span>
+            </Link>
+            <Link
               href={workspaces.length > 0 ? `/workspace/${workspaces[0].slug}/activity` : '/workspace/default/activity'}
               className="mc-button-secondary py-2 text-sm"
             >
               <Activity className="w-4 h-4" />
-              <span className="hidden sm:inline">Activity</span>
+              <span className="hidden sm:inline">Activity Log</span>
             </Link>
             <button
               onClick={() => setShowCreateModal(true)}
@@ -204,6 +211,17 @@ function WorkspaceCard({ workspace, onDelete }: { workspace: WorkspaceStats; onD
             <Users className="w-3 h-3 text-mc-accent" />
             <span>{workspace.agentCount} Agents</span>
           </div>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              window.location.href = '/comms';
+            }}
+            className="ml-auto px-3 py-1.5 bg-mc-accent/10 hover:bg-mc-accent/20 rounded-lg flex items-center gap-1.5 text-[10px] uppercase font-bold text-mc-accent border border-mc-accent/20 transition-all group/comms"
+          >
+            <MessageSquare className="w-3 h-3" />
+            <span>Comms</span>
+          </button>
         </div>
       </div>
     </Link>
