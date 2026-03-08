@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { ChannelsSidebar } from '@/components/ChannelsSidebar';
 import { WorkspaceChat } from '@/components/WorkspaceChat';
+import { AgentChat } from '@/components/AgentChat';
 import { MessageSquare, Hash, Bot } from 'lucide-react';
 
 export default function CommsPage() {
@@ -23,8 +24,12 @@ export default function CommsPage() {
         {/* Chat Area */}
         <main className="flex-1 relative bg-mc-bg-secondary/10 flex flex-col min-w-0">
           {selectedTaskId ? (
-             <div className="flex-1 relative p-4 lg:p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-mc-bg-secondary/20 via-mc-bg to-mc-bg">
-                <WorkspaceChat taskId={selectedTaskId} />
+             <div className="flex-1 relative p-4 lg:p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-mc-bg-secondary/20 via-mc-bg to-mc-bg h-full">
+                {selectedTaskId.startsWith('agent-') ? (
+                  <AgentChat agentId={selectedTaskId.replace('agent-', '')} key={`agent-${selectedTaskId}`} />
+                ) : (
+                  <WorkspaceChat taskId={selectedTaskId} key={`task-${selectedTaskId}`} />
+                )}
              </div>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-8">

@@ -63,7 +63,7 @@ export function SkillsMarket() {
                  
                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {availableSkills.map(skill => (
-                      <SkillToggle key={skill.id} skill={skill} />
+                      <SkillToggle key={skill.id} skill={skill} agentId={agent.id} agentSkills={agent.skills} />
                     ))}
                  </div>
               </div>
@@ -76,10 +76,47 @@ export function SkillsMarket() {
           </button>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-20 bg-mc-bg-secondary/50 rounded-[3rem] border border-mc-border">
-          <Users className="w-12 h-12 text-mc-accent opacity-20 mb-4" />
-          <h3 className="text-lg font-bold text-mc-text">Agent Marketplace</h3>
-          <p className="text-xs text-mc-text-secondary mt-1">Specialists are arriving in the next release cycle.</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Mock Specialists */}
+          {[
+            { name: 'Copywriter Pro', role: 'marketing', desc: 'Expert in SEO and conversion copywriting.', price: 'Free', emoji: '✍️' },
+            { name: 'Data Wizard', role: 'analyst', desc: 'Creates deep statistical insights from CSV/SQL.', price: 'Free', emoji: '📊' },
+            { name: 'UX Reviewer', role: 'design', desc: 'Critiques UI/UX flows and suggests improvements.', price: 'Premium', emoji: '🎨' },
+            { name: 'DevOps Master', role: 'devops', desc: 'Configures CI/CD pipelines and Docker compose.', price: 'Free', emoji: '🚀' },
+            { name: 'Security Aud', role: 'security', desc: 'Runs static analysis to find vulnerabilities.', price: 'Premium', emoji: '🔐' },
+          ].map((specialist, idx) => (
+            <div key={idx} className="mc-card p-6 flex flex-col gap-4 hover:border-mc-accent/40 transition-all duration-500">
+              <div className="flex items-center justify-between border-b border-mc-border/20 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-mc-bg border border-mc-border flex items-center justify-center text-2xl shadow-sm">
+                    {specialist.emoji}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-mc-text tracking-tight text-sm">{specialist.name}</h4>
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-mc-accent">{specialist.role}</span>
+                  </div>
+                </div>
+                {specialist.price === 'Premium' ? (
+                  <span className="text-[9px] font-bold text-amber-500 bg-amber-500/10 px-2 py-1 rounded-full uppercase tracking-wider">Premium</span>
+                ) : (
+                  <span className="text-[9px] font-bold text-mc-accent-green bg-mc-accent-green/10 px-2 py-1 rounded-full uppercase tracking-wider">Free</span>
+                )}
+              </div>
+              <p className="text-xs text-mc-text-secondary leading-relaxed flex-1">
+                {specialist.desc}
+              </p>
+              <button 
+                className="w-full py-2 bg-mc-accent/10 hover:bg-mc-accent text-mc-accent hover:text-white transition-colors duration-300 rounded-lg text-[10px] font-bold uppercase tracking-widest mt-auto shadow-sm"
+              >
+                Hire Specialist
+              </button>
+            </div>
+          ))}
+          
+          <div className="mc-card border-dashed p-6 flex flex-col items-center justify-center gap-3 text-mc-text-secondary hover:border-mc-accent/40 hover:bg-mc-accent/5 transition-all w-full min-h-[220px]">
+            <Plus className="w-8 h-8 opacity-50" />
+            <span className="text-xs font-bold uppercase tracking-widest text-center">Develop Custom<br/>Specialist</span>
+          </div>
         </div>
       )}
 

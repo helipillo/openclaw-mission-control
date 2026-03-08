@@ -252,6 +252,31 @@ export async function GET(
             console.log('[Planning Poll] Planning complete, handling...');
             const { firstAgentId, parsed: fullParsed, dispatchError } = await handlePlanningCompletion(taskId, parsed, messages);
 
+            // Log this assistant message to task_activities so it shows in Comms Hub
+            try {
+              let displayMessage = 'Planning complete. Generating agents and execution plan...';
+              const activityId = crypto.randomUUID();
+              const now = new Date().toISOString();
+              
+              getDb().prepare(`
+                INSERT INTO task_activities (id, task_id, agent_id, activity_type, message, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+              `).run(activityId, taskId, null, 'message', displayMessage, now);
+
+              broadcast({
+                type: 'activity_logged',
+                payload: {
+                  id: activityId,
+                  task_id: taskId,
+                  activity_type: 'message',
+                  message: displayMessage,
+                  created_at: now
+                }
+              });
+            } catch (err) {
+              console.error('[Planning Poll] Failed to log assistant message to activities', err);
+            }
+
             return NextResponse.json({
               hasUpdates: true,
               complete: true,
@@ -277,6 +302,32 @@ export async function GET(
               question: parsed.question,
               options: normalizedOptions,
             };
+
+            // Log this assistant message to task_activities so it shows in Comms Hub
+            try {
+              const opts = normalizedOptions.map(o => o.label).join(' | ');
+              let displayMessage = `${parsed.question}\n\nOptions: ${opts}`;
+              const activityId = crypto.randomUUID();
+              const now = new Date().toISOString();
+              
+              getDb().prepare(`
+                INSERT INTO task_activities (id, task_id, agent_id, activity_type, message, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+              `).run(activityId, taskId, null, 'message', displayMessage, now);
+
+              broadcast({
+                type: 'activity_logged',
+                payload: {
+                  id: activityId,
+                  task_id: taskId,
+                  activity_type: 'message',
+                  message: displayMessage,
+                  created_at: now
+                }
+              });
+            } catch (err) {
+              console.error('[Planning Poll] Failed to log assistant message to activities', err);
+            }
           }
         }
       }

@@ -621,6 +621,18 @@ const migrations: Migration[] = [
 
       console.log('[Migration 013] Fresh start complete');
     }
+  },
+  {
+    id: '014',
+    name: 'add_agent_skills',
+    up: (db) => {
+      console.log('[Migration 014] Adding skills to agents...');
+      const agentsInfo = db.prepare("PRAGMA table_info(agents)").all() as { name: string }[];
+      if (!agentsInfo.some(col => col.name === 'skills')) {
+        db.exec(`ALTER TABLE agents ADD COLUMN skills TEXT`);
+        console.log('[Migration 014] Added skills to agents');
+      }
+    }
   }
 ];
 

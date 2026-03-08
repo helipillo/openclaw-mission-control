@@ -7,9 +7,10 @@ interface ChatInputProps {
   taskId: string;
   disabled?: boolean;
   onSubmitted?: () => void;
+  isAgentDirect?: boolean;
 }
 
-export function ChatInput({ taskId, disabled, onSubmitted }: ChatInputProps) {
+export function ChatInput({ taskId, disabled, onSubmitted, isAgentDirect }: ChatInputProps) {
   const [answer, setAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -19,7 +20,11 @@ export function ChatInput({ taskId, disabled, onSubmitted }: ChatInputProps) {
 
     try {
       setIsSubmitting(true);
-      const res = await fetch(`/api/tasks/${taskId}/messages`, {
+      const url = isAgentDirect 
+        ? `/api/agents/${taskId.replace('agent-', '')}/messages`
+        : `/api/tasks/${taskId}/messages`;
+
+      const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: answer.trim() }),

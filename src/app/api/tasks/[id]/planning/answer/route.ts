@@ -44,46 +44,9 @@ export async function POST(
       ? `Other: ${otherText}`
       : answer;
 
-    const answerPrompt = `User's answer: ${answerText}
+    const answerPrompt = `${answerText}
 
-Based on this answer and the conversation so far, either:
-1. Ask your next question (if you need more information)
-2. Complete the planning (if you have enough information)
-
-For another question, respond with JSON:
-{
-  "question": "Your next question?",
-  "options": [
-    {"id": "A", "label": "Option A"},
-    {"id": "B", "label": "Option B"},
-    {"id": "other", "label": "Other"}
-  ]
-}
-
-If planning is complete, respond with JSON:
-{
-  "status": "complete",
-  "spec": {
-    "title": "Task title",
-    "summary": "Summary of what needs to be done",
-    "deliverables": ["List of deliverables"],
-    "success_criteria": ["How we know it's done"],
-    "constraints": {}
-  },
-  "agents": [
-    {
-      "name": "Agent Name",
-      "role": "Agent role",
-      "avatar_emoji": "🎯",
-      "soul_md": "Agent personality...",
-      "instructions": "Specific instructions..."
-    }
-  ],
-  "execution_plan": {
-    "approach": "How to execute",
-    "steps": ["Step 1", "Step 2"]
-  }
-}`;
+(Reminder: Output only valid JSON with either "question" or "status":"complete" as instructed previously)`;
 
     // Parse existing messages
     const messages = task.planning_messages ? JSON.parse(task.planning_messages) : [];

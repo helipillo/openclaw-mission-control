@@ -12,14 +12,42 @@ interface Skill {
 
 interface SkillToggleProps {
   skill: Skill;
+  agentId: string;
+  agentSkills?: string;
 }
 
-export function SkillToggle({ skill }: SkillToggleProps) {
-  const [enabled, setEnabled] = useState(true);
+export function SkillToggle({ skill, agentId, agentSkills }: SkillToggleProps) {
+  const [enabled, setEnabled] = useState(() => {
+    if (!agentSkills) return true; // Default true if no skills data
+    try {
+      const parsed = JSON.parse(agentSkills);
+      return parsed.includes(skill.id);
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleSkill = async () => {
+    const newState = !enabled;
+    setEnabled(newState); // optimistic UI update
+    
+    try {
+      const res = await fetch(`/api/agents/${agentId}/skills`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skillId: skill.id, enabled: newState })
+      });
+      if (!res.ok) {
+        setEnabled(enabled); // Revert on failure
+      }
+    } catch {
+      setEnabled(enabled); // Revert on failure
+    }
+  };
 
   return (
     <div 
-      onClick={() => setEnabled(!enabled)}
+      onClick={toggleSkill}
       className={`
         p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all duration-300
         ${enabled ? 'bg-mc-accent/5 border-mc-accent/20' : 'bg-mc-bg-tertiary/10 border-mc-border/40 grayscale opacity-60 hover:opacity-100 hover:grayscale-0'}

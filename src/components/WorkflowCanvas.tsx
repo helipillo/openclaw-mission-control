@@ -17,6 +17,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { useMissionControl } from '@/lib/store';
 import { Bot, CheckSquare, Zap, Loader2, MousePointer2, Plus } from 'lucide-react';
+import { TaskModal } from './TaskModal';
 
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
@@ -75,8 +76,19 @@ export function WorkflowCanvas() {
   const { agents, tasks, isLoading } = useMissionControl();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [editingTask, setEditingTask] = useState<any>(null);
 
   const onConnect = useCallback((params: Connection) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
+
+  const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+    if (node.type === 'task') {
+      const taskId = node.id.replace('task-', '');
+      const task = tasks.find((t) => t.id === taskId);
+      if (task) {
+        setEditingTask(task);
+      }
+    }
+  }, [tasks]);
 
   // Sync state from Mission Control store
   useEffect(() => {
@@ -146,6 +158,7 @@ export function WorkflowCanvas() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
         fitView
         className="workflow-canvas"
@@ -186,6 +199,13 @@ export function WorkflowCanvas() {
            </div>
         </Panel>
       </ReactFlow>
+
+      {editingTask && (
+        <TaskModal 
+          task={editingTask} 
+          onClose={() => setEditingTask(null)} 
+        />
+      )}
 
       <style jsx global>{`
         .react-flow__handle {

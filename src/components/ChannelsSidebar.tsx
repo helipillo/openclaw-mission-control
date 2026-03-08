@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Hash, ChevronDown, ChevronRight, MessageSquare, Search } from 'lucide-react';
-import type { WorkspaceStats, Task } from '@/lib/types';
+import { Hash, ChevronDown, ChevronRight, MessageSquare, Search, Bot } from 'lucide-react';
+import type { WorkspaceStats, Task, Agent } from '@/lib/types';
 
 interface ChannelsSidebarProps {
   onSelectChannel: (taskId: string) => void;
@@ -12,6 +12,7 @@ interface ChannelsSidebarProps {
 export function ChannelsSidebar({ onSelectChannel, selectedChannelId }: ChannelsSidebarProps) {
   const [workspaces, setWorkspaces] = useState<WorkspaceStats[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedWorkspaces, setExpandedWorkspaces] = useState<Record<string, boolean>>({});
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,16 +22,19 @@ export function ChannelsSidebar({ onSelectChannel, selectedChannelId }: Channels
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [wsRes, tasksRes] = await Promise.all([
+        const [wsRes, tasksRes, agentsRes] = await Promise.all([
           fetch('/api/workspaces?stats=true'),
-          fetch('/api/tasks')
+          fetch('/api/tasks'),
+          fetch('/api/agents')
         ]);
         
-        if (wsRes.ok && tasksRes.ok) {
+        if (wsRes.ok && tasksRes.ok && agentsRes.ok) {
           const wsData = await wsRes.json();
           const tasksData = await tasksRes.json();
+          const agentsData = await agentsRes.json();
           setWorkspaces(wsData);
           setTasks(tasksData);
+          setAgents(agentsData.agents.filter((a: Agent) => a.status !== 'offline'));
           
           // Expand all by default
           const initialExpanded: Record<string, boolean> = {};
@@ -138,6 +142,50 @@ export function ChannelsSidebar({ onSelectChannel, selectedChannelId }: Channels
 
       {/* Workspace & Channel List */}
       <div className="flex-1 overflow-y-auto px-2 pb-4 scrollbar-hide">
+        {/* Active Agents / Direct Messages Section */}
+        <div className="mb-4">
+          <div className="px-2 py-1.5 flex items-center gap-1.5 opacity-60 mb-1 mt-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-mc-text flex-1 text-left">
+              Direct Messages
+            </span>
+            <span className="text-[10px] bg-mc-bg border border-mc-border px-1.5 rounded-full">
+              {agents.length}
+            </span>
+          </div>
+          <div className="ml-2 space-y-0.5">
+            {agents.length === 0 ? (
+               <div className="px-4 py-2 text-[10px] text-mc-text-secondary italic opacity-50">
+                 No active agents
+               </div>
+            ) : (
+               agents.filter(a => a.name.toLowerCase().includes(searchQuery.toLowerCase())).map(agent => {
+                 const isSelected = selectedChannelId === `agent-${agent.id}`;
+                 return (
+                   <button
+                     key={agent.id}
+                     onClick={() => handleSelect(`agent-${agent.id}`)}
+                     className={`w-full flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm transition-all group relative ${
+                       isSelected
+                         ? 'bg-mc-accent text-white shadow-md'
+                         : 'text-mc-text-secondary hover:bg-mc-bg-tertiary hover:text-mc-text'
+                     }`}
+                   >
+                     <div className="relative">
+                       <Bot className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-white' : 'text-mc-text-secondary group-hover:opacity-100'}`} />
+                       <div className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 bg-green-500 rounded-full border border-mc-bg"></div>
+                     </div>
+                     <span className={`truncate flex-1 text-left ${isSelected ? 'font-bold' : 'font-medium'}`}>
+                       {agent.name}
+                     </span>
+                   </button>
+                 );
+               })
+            )}
+          </div>
+        </div>
+
+        <div className="h-px w-full bg-mc-border/50 my-2"></div>
+        
         {workspaces.map(workspace => {
           const workspaceTasks = tasks.filter(t => t.workspace_id === workspace.id);
           const filteredTasks = workspaceTasks.filter(t => 

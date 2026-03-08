@@ -35,6 +35,7 @@ export interface Agent {
   user_md?: string;
   agents_md?: string;
   model?: string;
+  skills?: string;
   source: AgentSource;
   gateway_agent_id?: string;
   session_key_prefix?: string;
@@ -361,11 +362,12 @@ export type SSEEventType =
   | 'activity_logged'
   | 'deliverable_added'
   | 'agent_spawned'
+  | 'agent_updated'
   | 'agent_completed';
 
 export interface SSEEvent {
   type: SSEEventType;
-  payload: Task | TaskActivity | TaskDeliverable | {
+  payload: Task | TaskActivity | TaskDeliverable | Agent | {
     taskId: string;
     sessionId: string;
     agentName?: string;

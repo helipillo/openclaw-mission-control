@@ -58,33 +58,9 @@ export async function POST(
         const client = getOpenClawClient();
         if (!client.isConnected()) await client.connect();
 
-        const answerPrompt = `User's answer: ${message}
+        const answerPrompt = `${message}
 
-Based on this answer and the conversation so far, either:
-1. Ask your next question (if you need more information)
-2. Complete the planning (if you have enough information)
-
-For another question, respond with JSON:
-{
-  "question": "Your next question?",
-  "options": [
-    {"id": "A", "label": "Option A"},
-    {"id": "B", "label": "Option B"},
-    {"id": "other", "label": "Other"}
-  ]
-}
-
-If planning is complete, respond with JSON:
-{
-  "status": "complete",
-  "spec": {
-    "title": "Task title",
-    "summary": "Summary of what needs to be done",
-    "deliverables": ["List of deliverables"],
-    "success_criteria": ["How we know it's done"],
-    "constraints": {}
-  }
-}`;
+(Reminder: Output only valid JSON with either "question" or "status":"complete" as instructed previously)`;
 
         await client.call('chat.send', {
           sessionKey: task.planning_session_key,
