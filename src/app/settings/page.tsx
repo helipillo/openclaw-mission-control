@@ -69,44 +69,52 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-mc-bg">
-      {/* Header */}
-      <div className="border-b border-mc-border bg-mc-bg-secondary">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-mc-bg tracking-tight">
+      {/* Background Blobs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div className="absolute top-[20%] -left-[10%] w-[30%] h-[30%] bg-mc-accent-green/5 blur-[100px] rounded-full" />
+        <div className="absolute bottom-[20%] -right-[10%] w-[30%] h-[30%] bg-mc-accent/5 blur-[100px] rounded-full" />
+      </div>
+
+      {/* Floating Header */}
+      <div className="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-4xl z-50">
+        <div className="glass-effect rounded-[2.5rem] px-8 py-4 flex items-center justify-between shadow-2xl">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => router.push('/')}
-              className="p-2 hover:bg-mc-bg-tertiary rounded text-mc-text-secondary"
-              title="Back to Mission Control"
+              className="w-12 h-12 rounded-2xl bg-mc-bg-secondary flex items-center justify-center hover:bg-mc-accent/10 hover:text-mc-accent transition-all group shadow-sm"
+              title="Back"
             >
-              ← Back
+              <Home className="w-5 h-5 group-hover:scale-110 transition-transform" />
             </button>
-            <Settings className="w-6 h-6 text-mc-accent" />
-            <h1 className="text-2xl font-bold text-mc-text">Settings</h1>
+            <div>
+              <h1 className="text-xl font-bold text-mc-text leading-none">Settings</h1>
+              <p className="text-xs text-mc-text-secondary mt-1 font-medium uppercase tracking-wider">System Core</p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <button
               onClick={handleReset}
-              className="mc-button-secondary"
+              className="mc-button-secondary py-2 text-sm"
             >
               <RotateCcw className="w-4 h-4" />
-              Reset to Defaults
+              <span className="hidden sm:inline">Reset</span>
             </button>
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="mc-button-primary"
+              className="mc-button-primary py-2 text-sm"
             >
               <Save className="w-4 h-4" />
-              {isSaving ? 'Saving...' : 'Save Changes'}
+              <span>{isSaving ? 'Saving...' : 'Save'}</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="max-w-4xl mx-auto px-6 pt-32 pb-20">
         {/* Success Message */}
         {saveSuccess && (
           <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded text-green-400">
@@ -213,24 +221,34 @@ export default function SettingsPage() {
         </section>
 
         {/* API Configuration */}
-
+ 
         {/* Environment Variables Note */}
-        <section className="p-6 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-          <h3 className="text-lg font-semibold text-blue-400 mb-2">
-            📝 Environment Variables
+        <section className="p-8 bg-mc-accent/5 border border-mc-accent/10 rounded-[2.5rem] relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
+            <Settings className="w-32 h-32" />
+          </div>
+          <h3 className="text-xl font-bold text-mc-accent mb-4 flex items-center gap-2">
+            <span>📝</span> Environment Variables
           </h3>
-          <p className="text-sm text-blue-300 mb-3">
-            Some settings are also configurable via environment variables in <code className="px-2 py-1 bg-mc-bg rounded">.env.local</code>:
+          <p className="text-mc-text-secondary mb-6 leading-relaxed">
+            Infrastructure settings are sourced from <code className="px-2 py-1 bg-mc-bg-tertiary rounded-lg font-mono text-mc-accent">.env.local</code>.
           </p>
-          <ul className="text-sm text-blue-300 space-y-1 ml-4 list-disc">
-            <li><code>MISSION_CONTROL_URL</code> - API URL override</li>
-            <li><code>WORKSPACE_BASE_PATH</code> - Base workspace directory</li>
-            <li><code>PROJECTS_PATH</code> - Projects directory</li>
-            <li><code>OPENCLAW_GATEWAY_URL</code> - Gateway WebSocket URL</li>
-            <li><code>OPENCLAW_GATEWAY_TOKEN</code> - Gateway auth token</li>
-          </ul>
-          <p className="text-xs text-blue-400 mt-3">
-            Environment variables take precedence over UI settings for server-side operations.
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              'MISSION_CONTROL_URL',
+              'WORKSPACE_BASE_PATH',
+              'PROJECTS_PATH',
+              'OPENCLAW_GATEWAY_URL',
+              'OPENCLAW_GATEWAY_TOKEN'
+            ].map(v => (
+              <div key={v} className="flex items-center gap-3 text-sm text-mc-text-secondary">
+                <div className="w-1.5 h-1.5 rounded-full bg-mc-accent" />
+                <code className="font-mono">{v}</code>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-mc-text-secondary mt-8 font-medium italic">
+            * Environment variables override UI settings for server-side logic.
           </p>
         </section>
       </div>

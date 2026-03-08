@@ -107,14 +107,14 @@ export function ActivityLog({ taskId }: ActivityLogProps) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {activities.map((activity) => (
         <div
           key={activity.id}
-          className="flex gap-3 p-3 bg-mc-bg rounded-lg border border-mc-border"
+          className="flex gap-4 p-4 mc-card !rounded-[1.5rem] !shadow-sm hover:!translate-y-0 hover:!scale-[1.01] transition-all"
         >
           {/* Icon */}
-          <div className="text-2xl flex-shrink-0">
+          <div className="icon-box !w-10 !h-10 !rounded-xl text-xl flex-shrink-0 bg-mc-bg-tertiary">
             {getActivityIcon(activity.activity_type)}
           </div>
 
@@ -122,30 +122,34 @@ export function ActivityLog({ taskId }: ActivityLogProps) {
           <div className="flex-1 min-w-0">
             {/* Agent info */}
             {activity.agent && (
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-sm">{activity.agent.avatar_emoji}</span>
-                <span className="text-sm font-medium text-mc-text">
-                  {activity.agent.name}
-                </span>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="px-2 py-0.5 bg-mc-bg-tertiary rounded-lg border border-mc-border/20 flex items-center gap-2">
+                  <span className="text-xs">{activity.agent.avatar_emoji}</span>
+                  <span className="text-xs font-bold text-mc-accent uppercase tracking-wider">
+                    {activity.agent.name}
+                  </span>
+                </div>
               </div>
             )}
 
             {/* Message */}
-            <p className="text-sm text-mc-text break-words">
+            <p className="text-sm font-medium text-mc-text leading-relaxed">
               {activity.message}
             </p>
 
             {/* Metadata */}
             {activity.metadata && (
-              <div className="mt-2 p-2 bg-mc-bg-tertiary rounded text-xs text-mc-text-secondary font-mono">
-                {typeof activity.metadata === 'string' 
-                  ? activity.metadata 
-                  : JSON.stringify(JSON.parse(activity.metadata), null, 2)}
+              <div className="mt-3 p-3 bg-mc-bg/50 backdrop-blur-sm rounded-xl text-xs text-mc-text-secondary font-mono border border-mc-border/10 overflow-x-auto">
+                <pre className="whitespace-pre-wrap">
+                  {typeof activity.metadata === 'string' 
+                    ? activity.metadata 
+                    : JSON.stringify(JSON.parse(activity.metadata), null, 2)}
+                </pre>
               </div>
             )}
 
             {/* Timestamp */}
-            <div className="text-xs text-mc-text-secondary mt-2">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-mc-text-secondary mt-3 opacity-60">
               {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
             </div>
           </div>

@@ -18,17 +18,24 @@
   --mc-accent-pink: #db61a2;
   --mc-accent-cyan: #39d353;
   
+  --glass-bg: rgba(20, 25, 35, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.05);
+  
   --transition-speed: 0.3s;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(88, 166, 255, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(163, 113, 247, 0.05) 0px, transparent 50%);
 }
 
 [data-theme='latte'] {
-  /* Catppuccin Latte colors */
-  --mc-bg: #eff1f5;           /* Base */
-  --mc-bg-secondary: #e6e9ef; /* Mantle */
-  --mc-bg-tertiary: #dce0e8;  /* Crust */
-  --mc-border: #ccd0da;      /* Surface0 */
-  --mc-text: #4c4f69;        /* Text */
-  --mc-text-secondary: #6c6f85; /* Subtext0 */
+  /* Catppuccin Latte - Re-tuned for Liquid Glass */
+  --mc-bg: #eff1f5;
+  --mc-bg-secondary: rgba(230, 233, 239, 0.6);
+  --mc-bg-tertiary: rgba(220, 224, 232, 0.4);
+  --mc-border: rgba(204, 208, 218, 0.5);
+  --mc-text: #4c4f69;
+  --mc-text-secondary: #6c6f85;
   --mc-accent: #1e66f5;       /* Blue */
   --mc-accent-green: #40a02b; /* Green */
   --mc-accent-yellow: #df8e1d; /* Yellow */
@@ -36,6 +43,14 @@
   --mc-accent-purple: #8839ef; /* Mauve */
   --mc-accent-pink: #ea76cb;   /* Pink */
   --mc-accent-cyan: #179287;   /* Teal */
+  
+  --glass-bg: rgba(255, 255, 255, 0.3);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-highlight: rgba(255, 255, 255, 0.8);
+
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(30, 102, 245, 0.03) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(234, 118, 203, 0.03) 0px, transparent 50%);
 }
 
 * {
@@ -169,26 +184,89 @@ body {
   box-shadow: 0 0 8px var(--mc-accent-green);
 }
 
-/* Premium utilities */
+/* Premium utilities: Liquid Glass System */
 .glass-effect {
-  backdrop-filter: blur(12px);
-  background-color: color-mix(in srgb, var(--mc-bg-secondary), transparent 20%);
-  border: 1px solid color-mix(in srgb, var(--mc-border), transparent 50%);
+  backdrop-filter: blur(25px) saturate(180%);
+  background-color: var(--glass-bg, rgba(20, 25, 35, 0.4));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.3),
+    inset 0 0 0 1px var(--glass-highlight, rgba(255, 255, 255, 0.05));
+}
+
+[data-theme='latte'] .glass-effect {
+  box-shadow: 
+    0 8px 32px 0 rgba(31, 38, 135, 0.07),
+    inset 0 0 0 1px var(--glass-highlight);
 }
 
 .mc-card {
-  @apply bg-mc-bg-secondary border border-mc-border rounded-xl shadow-sm hover:shadow-md transition-all duration-300;
+  @apply rounded-[2.5rem] p-6 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)];
+  background: var(--mc-bg-secondary);
+  border: 1px solid var(--mc-border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.mc-card:hover {
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.1);
+  background: var(--mc-bg-tertiary);
 }
 
 .mc-input {
-  @apply w-full px-4 py-2 bg-mc-bg border border-mc-border rounded-lg text-mc-text focus:border-mc-accent focus:ring-1 focus:ring-mc-accent focus:outline-none transition-all;
+  @apply w-full px-5 py-3 rounded-2xl transition-all duration-300;
+  background: var(--mc-bg-tertiary);
+  border: 1px solid var(--mc-border);
+  color: var(--mc-text);
+}
+
+.mc-input:focus {
+  @apply outline-none ring-2 ring-mc-accent;
+  background: var(--mc-bg);
+  transform: translateY(-1px);
 }
 
 .mc-button-primary {
-  @apply px-4 py-2 bg-mc-accent text-mc-bg rounded-lg hover:opacity-90 font-medium flex items-center gap-2 disabled:opacity-50 transition-all;
+  @apply px-6 py-3 rounded-2xl font-semibold flex items-center gap-2 transition-all duration-300;
+  background: var(--mc-accent);
+  color: var(--mc-bg);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--mc-accent), transparent 60%);
+}
+
+.mc-button-primary:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--mc-accent), transparent 40%);
+  filter: brightness(1.1);
+}
+
+.mc-button-primary:active {
+  transform: scale(0.97);
 }
 
 .mc-button-secondary {
-  @apply px-4 py-2 border border-mc-border rounded-lg hover:bg-mc-bg-tertiary text-mc-text-secondary flex items-center gap-2 transition-all;
+  @apply px-6 py-3 rounded-2xl font-semibold border flex items-center gap-2 transition-all duration-300;
+  border-color: var(--mc-border);
+  background: var(--mc-bg-secondary);
+  color: var(--mc-text-secondary);
 }
+
+.mc-button-secondary:hover {
+  background: var(--mc-bg-tertiary);
+  color: var(--mc-text);
+  transform: translateY(-1px);
+}
+
+/* Apple OS Style Badges */
+.status-badge {
+  @apply px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-2;
+}
+
+/* Squircle-like Icons */
+.icon-box {
+  @apply w-12 h-12 rounded-3xl flex items-center justify-center transition-all duration-300;
+  background: var(--mc-bg-tertiary);
+}
+
+/* Custom Cursor or Hover Indicators could go here */
+
 
