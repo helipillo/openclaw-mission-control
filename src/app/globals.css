@@ -82,28 +82,36 @@ body {
 }
 
 .status-working {
-  @apply bg-mc-accent-green/20 text-mc-accent-green border border-mc-accent-green/50;
+  background-color: color-mix(in srgb, var(--mc-accent-green), transparent 80%);
+  color: var(--mc-accent-green);
+  border: 1px solid color-mix(in srgb, var(--mc-accent-green), transparent 50%);
 }
 
 .status-offline {
-  @apply bg-mc-accent-red/20 text-mc-accent-red border border-mc-accent-red/50;
+  background-color: color-mix(in srgb, var(--mc-accent-red), transparent 80%);
+  color: var(--mc-accent-red);
+  border: 1px solid color-mix(in srgb, var(--mc-accent-red), transparent 50%);
 }
 
 /* Priority badge styles */
 .priority-low {
-  @apply bg-mc-text-secondary/20 text-mc-text-secondary;
+  background-color: color-mix(in srgb, var(--mc-text-secondary), transparent 80%);
+  color: var(--mc-text-secondary);
 }
 
 .priority-normal {
-  @apply bg-mc-accent/20 text-mc-accent;
+  background-color: color-mix(in srgb, var(--mc-accent), transparent 80%);
+  color: var(--mc-accent);
 }
 
 .priority-high {
-  @apply bg-mc-accent-yellow/20 text-mc-accent-yellow;
+  background-color: color-mix(in srgb, var(--mc-accent-yellow), transparent 80%);
+  color: var(--mc-accent-yellow);
 }
 
 .priority-urgent {
-  @apply bg-mc-accent-red/20 text-mc-accent-red;
+  background-color: color-mix(in srgb, var(--mc-accent-red), transparent 80%);
+  color: var(--mc-accent-red);
 }
 
 /* Task status column colors */
@@ -163,7 +171,9 @@ body {
 
 /* Premium utilities */
 .glass-effect {
-  @apply backdrop-blur-md bg-mc-bg-secondary/80 border border-mc-border/50;
+  backdrop-filter: blur(12px);
+  background-color: color-mix(in srgb, var(--mc-bg-secondary), transparent 20%);
+  border: 1px solid color-mix(in srgb, var(--mc-border), transparent 50%);
 }
 
 .mc-card {
