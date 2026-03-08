@@ -7,11 +7,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Settings, Save, RotateCcw, Home, FolderOpen, Link as LinkIcon } from 'lucide-react';
-import { getConfig, updateConfig, resetConfig, type MissionControlConfig } from '@/lib/config';
+import { Settings, Save, RotateCcw, Home, FolderOpen, Link as LinkIcon, Palette } from 'lucide-react';
+import { getConfig, updateConfig, resetConfig, type MissionControlConfig, type Theme } from '@/lib/config';
+import { useTheme } from '@/components/ThemeProvider';
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { theme: currentTheme, setTheme } = useTheme();
   const [config, setConfig] = useState<MissionControlConfig | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -48,9 +50,14 @@ export default function SettingsPage() {
     }
   };
 
-  const handleChange = (field: keyof MissionControlConfig, value: string) => {
+  const handleChange = (field: keyof MissionControlConfig, value: any) => {
     if (!config) return;
     setConfig({ ...config, [field]: value });
+    
+    // If theme changes, apply it immediately
+    if (field === 'theme') {
+      setTheme(value as Theme);
+    }
   };
 
   if (!config) {
@@ -81,7 +88,7 @@ export default function SettingsPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleReset}
-              className="px-4 py-2 border border-mc-border rounded hover:bg-mc-bg-tertiary text-mc-text-secondary flex items-center gap-2"
+              className="mc-button-secondary"
             >
               <RotateCcw className="w-4 h-4" />
               Reset to Defaults
@@ -89,7 +96,7 @@ export default function SettingsPage() {
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="px-4 py-2 bg-mc-accent text-mc-bg rounded hover:bg-mc-accent/90 flex items-center gap-2 disabled:opacity-50"
+              className="mc-button-primary"
             >
               <Save className="w-4 h-4" />
               {isSaving ? 'Saving...' : 'Save Changes'}
@@ -115,7 +122,7 @@ export default function SettingsPage() {
         )}
 
         {/* Workspace Paths */}
-        <section className="mb-8 p-6 bg-mc-bg-secondary border border-mc-border rounded-lg">
+        <section className="mb-8 p-6 mc-card">
           <div className="flex items-center gap-2 mb-4">
             <FolderOpen className="w-5 h-5 text-mc-accent" />
             <h2 className="text-xl font-semibold text-mc-text">Workspace Paths</h2>
@@ -134,7 +141,7 @@ export default function SettingsPage() {
                 value={config.workspaceBasePath}
                 onChange={(e) => handleChange('workspaceBasePath', e.target.value)}
                 placeholder="~/Documents/Shared"
-                className="w-full px-4 py-2 bg-mc-bg border border-mc-border rounded text-mc-text focus:border-mc-accent focus:outline-none"
+                className="mc-input"
               />
               <p className="text-xs text-mc-text-secondary mt-1">
                 Base directory for all Mission Control files. Use ~ for home directory.
@@ -150,7 +157,7 @@ export default function SettingsPage() {
                 value={config.projectsPath}
                 onChange={(e) => handleChange('projectsPath', e.target.value)}
                 placeholder="~/Documents/Shared/projects"
-                className="w-full px-4 py-2 bg-mc-bg border border-mc-border rounded text-mc-text focus:border-mc-accent focus:outline-none"
+                className="mc-input"
               />
               <p className="text-xs text-mc-text-secondary mt-1">
                 Directory where project folders are created. Each project gets its own folder.
@@ -166,7 +173,7 @@ export default function SettingsPage() {
                 value={config.defaultProjectName}
                 onChange={(e) => handleChange('defaultProjectName', e.target.value)}
                 placeholder="mission-control"
-                className="w-full px-4 py-2 bg-mc-bg border border-mc-border rounded text-mc-text focus:border-mc-accent focus:outline-none"
+                className="mc-input"
               />
               <p className="text-xs text-mc-text-secondary mt-1">
                 Default name for new projects. Can be changed per project.
@@ -175,34 +182,37 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        {/* API Configuration */}
-        <section className="mb-8 p-6 bg-mc-bg-secondary border border-mc-border rounded-lg">
+        {/* Appearance Configuration */}
+        <section className="mb-8 p-6 mc-card">
           <div className="flex items-center gap-2 mb-4">
-            <LinkIcon className="w-5 h-5 text-mc-accent" />
-            <h2 className="text-xl font-semibold text-mc-text">API Configuration</h2>
+            <Palette className="w-5 h-5 text-mc-accent" />
+            <h2 className="text-xl font-semibold text-mc-text">Appearance</h2>
           </div>
           <p className="text-sm text-mc-text-secondary mb-4">
-            Configure Mission Control API URL for agent orchestration.
+            Customize how Mission Control looks.
           </p>
 
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-mc-text mb-2">
-                Mission Control URL
+                Theme
               </label>
-              <input
-                type="text"
-                value={config.missionControlUrl}
-                onChange={(e) => handleChange('missionControlUrl', e.target.value)}
-                placeholder="http://localhost:4000"
-                className="w-full px-4 py-2 bg-mc-bg border border-mc-border rounded text-mc-text focus:border-mc-accent focus:outline-none"
-              />
+              <select
+                value={config.theme}
+                onChange={(e) => handleChange('theme', e.target.value as Theme)}
+                className="mc-input"
+              >
+                <option value="original">Original (Dark)</option>
+                <option value="latte">Catppuccin Latte (Light)</option>
+              </select>
               <p className="text-xs text-mc-text-secondary mt-1">
-                URL where Mission Control is running. Auto-detected by default. Change for remote access.
+                Select your preferred color theme. Changes are applied immediately but must be saved to persist.
               </p>
             </div>
           </div>
         </section>
+
+        {/* API Configuration */}
 
         {/* Environment Variables Note */}
         <section className="p-6 bg-blue-500/10 border border-blue-500/30 rounded-lg">

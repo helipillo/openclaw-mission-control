@@ -7,6 +7,8 @@
  * NEVER commit hardcoded IPs, paths, or sensitive data!
  */
 
+export type Theme = 'original' | 'latte';
+
 export interface MissionControlConfig {
   // Workspace settings
   workspaceBasePath: string; // e.g., ~/Documents/Shared
@@ -15,8 +17,8 @@ export interface MissionControlConfig {
   // Mission Control API URL (for orchestration)
   missionControlUrl: string; // Auto-detected or manually set
   
-  // OpenClaw Gateway settings (these come from .env on server)
-  // Client-side only needs to know if it's configured
+  // Appearance
+  theme: Theme;
   
   // Project defaults
   defaultProjectName: string; // 'mission-control' or custom
@@ -26,6 +28,7 @@ const DEFAULT_CONFIG: MissionControlConfig = {
   workspaceBasePath: '~/Documents/Shared',
   projectsPath: '~/Documents/Shared/projects',
   missionControlUrl: typeof window !== 'undefined' ? window.location.origin : 'http://localhost:4000',
+  theme: 'original',
   defaultProjectName: 'mission-control',
 };
 
