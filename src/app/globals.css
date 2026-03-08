@@ -57,6 +57,35 @@
     radial-gradient(at 100% 100%, rgba(234, 118, 203, 0.01) 0px, transparent 50%);
 }
 
+[data-theme='mocha'] {
+  /* Catppuccin Mocha - Ultra Minimalist Dark Liquid Glass */
+  --mc-bg: #1e1e2e; /* Base */
+  --mc-bg-secondary: rgba(30, 30, 46, 0.7); /* Frosted mantle */
+  --mc-bg-tertiary: rgba(30, 30, 46, 0.4);  /* Barely there crust */
+  --mc-border: rgba(255, 255, 255, 0.04);   /* Extremely subtle borders */
+  --mc-text: #cdd6f4;                        /* Text */
+  --mc-text-secondary: #bac2de;              /* Subtext1 */
+  
+  /* Catppuccin Mocha Accents */
+  --mc-accent: #89b4fa;       /* Blue */
+  --mc-accent-green: #a6e3a1; /* Green */
+  --mc-accent-yellow: #f9e2af; /* Yellow */
+  --mc-accent-red: #f38ba8;    /* Red */
+  --mc-accent-purple: #cba6f7; /* Mauve */
+  --mc-accent-pink: #f5c2e7;   /* Pink */
+  --mc-accent-cyan: #94e2d5;   /* Teal */
+  
+  /* Pure Apple-like Glass Variables (Dark mode) */
+  --glass-bg: rgba(30, 30, 46, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.08); /* slightly stronger than border for edge definition */
+  --glass-highlight: rgba(255, 255, 255, 0.05);
+
+  /* Very faint ambient glow */
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(137, 180, 250, 0.04) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(245, 194, 231, 0.03) 0px, transparent 50%);
+}
+
 * {
   box-sizing: border-box;
   padding: 0;

@@ -7,7 +7,7 @@
  * NEVER commit hardcoded IPs, paths, or sensitive data!
  */
 
-export type Theme = 'original' | 'latte';
+export type Theme = 'original' | 'latte' | 'mocha';
 
 export interface MissionControlConfig {
   // Workspace settings

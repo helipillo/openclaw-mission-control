@@ -204,7 +204,7 @@ export default function SettingsPage() {
           <div className="space-y-5">
             <div>
               <label className="block text-xs font-bold uppercase tracking-widest text-mc-text-secondary mb-2">
-                Theme Theme
+                Theme
               </label>
               <select
                 value={config.theme}
@@ -213,6 +213,7 @@ export default function SettingsPage() {
               >
                 <option value="original">Original (Dark)</option>
                 <option value="latte">Catppuccin Latte (Light)</option>
+                <option value="mocha">Catppuccin Mocha (Dark)</option>
               </select>
               <p className="text-xs text-mc-text-secondary mt-1">
                 Select your preferred color theme. Changes are applied immediately but must be saved to persist.
