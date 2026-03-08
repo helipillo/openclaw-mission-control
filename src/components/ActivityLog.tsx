@@ -107,51 +107,50 @@ export function ActivityLog({ taskId }: ActivityLogProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-1">
       {activities.map((activity) => (
         <div
           key={activity.id}
-          className="flex gap-4 p-4 mc-card !rounded-[1.5rem] !shadow-sm hover:!translate-y-0 hover:!scale-[1.01] transition-all"
+          className="flex gap-4 p-3 hover:bg-mc-bg-tertiary/50 rounded-2xl transition-all group"
         >
           {/* Icon */}
-          <div className="icon-box !w-10 !h-10 !rounded-xl text-xl flex-shrink-0 bg-mc-bg-tertiary">
+          <div className="w-8 h-8 rounded-xl text-sm flex-shrink-0 bg-mc-bg border border-mc-border/40 flex items-center justify-center mt-1 shadow-sm">
             {getActivityIcon(activity.activity_type)}
           </div>
 
           {/* Content */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 py-1">
+            <div className="flex items-baseline justify-between gap-4 mb-1">
+              {/* Message */}
+              <p className="text-sm font-medium text-mc-text leading-snug">
+                {activity.message}
+              </p>
+              {/* Timestamp */}
+              <span className="text-[10px] font-medium text-mc-text-secondary whitespace-nowrap opacity-60 group-hover:opacity-100 transition-opacity">
+                {formatDistanceToNow(new Date(activity.created_at))} ago
+              </span>
+            </div>
+
             {/* Agent info */}
             {activity.agent && (
-              <div className="flex items-center gap-2 mb-2">
-                <div className="px-2 py-0.5 bg-mc-bg-tertiary rounded-lg border border-mc-border/20 flex items-center gap-2">
-                  <span className="text-xs">{activity.agent.avatar_emoji}</span>
-                  <span className="text-xs font-bold text-mc-accent uppercase tracking-wider">
-                    {activity.agent.name}
-                  </span>
-                </div>
+              <div className="flex items-center gap-1.5 mt-2 opacity-80">
+                <span className="text-[10px]">{activity.agent.avatar_emoji}</span>
+                <span className="text-[10px] font-bold text-mc-accent uppercase tracking-wider">
+                  {activity.agent.name}
+                </span>
               </div>
             )}
 
-            {/* Message */}
-            <p className="text-sm font-medium text-mc-text leading-relaxed">
-              {activity.message}
-            </p>
-
             {/* Metadata */}
             {activity.metadata && (
-              <div className="mt-3 p-3 bg-mc-bg/50 backdrop-blur-sm rounded-xl text-xs text-mc-text-secondary font-mono border border-mc-border/10 overflow-x-auto">
-                <pre className="whitespace-pre-wrap">
+              <div className="mt-2 p-2.5 bg-mc-bg-tertiary/50 rounded-xl text-[11px] text-mc-text-secondary font-mono border border-transparent overflow-x-auto group-hover:border-mc-border/30 transition-colors">
+                <pre className="whitespace-pre-wrap leading-relaxed">
                   {typeof activity.metadata === 'string' 
                     ? activity.metadata 
                     : JSON.stringify(JSON.parse(activity.metadata), null, 2)}
                 </pre>
               </div>
             )}
-
-            {/* Timestamp */}
-            <div className="text-[10px] font-bold uppercase tracking-widest text-mc-text-secondary mt-3 opacity-60">
-              {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
-            </div>
           </div>
         </div>
       ))}

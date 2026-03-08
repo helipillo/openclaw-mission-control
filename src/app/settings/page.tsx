@@ -69,26 +69,23 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-mc-bg tracking-tight">
-      {/* Background Blobs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-[20%] -left-[10%] w-[30%] h-[30%] bg-mc-accent-green/5 blur-[100px] rounded-full" />
-        <div className="absolute bottom-[20%] -right-[10%] w-[30%] h-[30%] bg-mc-accent/5 blur-[100px] rounded-full" />
-      </div>
+    <div className="min-h-screen bg-mc-bg tracking-tight font-sans">
+      {/* Background Ambient */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-mc-bg-secondary/40 via-mc-bg to-mc-bg" />
 
       {/* Floating Header */}
-      <div className="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-4xl z-50">
-        <div className="glass-effect rounded-[2.5rem] px-8 py-4 flex items-center justify-between shadow-2xl">
-          <div className="flex items-center gap-4">
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 w-[92%] max-w-4xl z-50">
+        <div className="glass-effect rounded-[1.5rem] px-6 py-3 flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => router.push('/')}
-              className="w-12 h-12 rounded-2xl bg-mc-bg-secondary flex items-center justify-center hover:bg-mc-accent/10 hover:text-mc-accent transition-all group shadow-sm"
+              className="w-10 h-10 rounded-xl bg-mc-bg-tertiary flex items-center justify-center hover:bg-mc-bg transition-colors"
               title="Back"
             >
-              <Home className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <Home className="w-5 h-5 text-mc-text-secondary" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-mc-text leading-none">Settings</h1>
+              <h1 className="text-xl font-semibold text-mc-text leading-none tracking-tight">Settings</h1>
               <p className="text-xs text-mc-text-secondary mt-1 font-medium uppercase tracking-wider">System Core</p>
             </div>
           </div>
@@ -130,18 +127,20 @@ export default function SettingsPage() {
         )}
 
         {/* Workspace Paths */}
-        <section className="mb-8 p-6 mc-card">
-          <div className="flex items-center gap-2 mb-4">
-            <FolderOpen className="w-5 h-5 text-mc-accent" />
-            <h2 className="text-xl font-semibold text-mc-text">Workspace Paths</h2>
-          </div>
-          <p className="text-sm text-mc-text-secondary mb-4">
-            Configure where Mission Control stores projects and deliverables.
-          </p>
-
-          <div className="space-y-4">
+        <section className="mb-8 p-6 mc-card shadow-none">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 rounded-xl bg-mc-bg flex items-center justify-center border border-mc-border/40 shadow-sm">
+              <FolderOpen className="w-4 h-4 text-mc-text-secondary" />
+            </div>
             <div>
-              <label className="block text-sm font-medium text-mc-text mb-2">
+              <h2 className="text-lg font-semibold tracking-tight text-mc-text">Workspace Paths</h2>
+              <p className="text-xs text-mc-text-secondary font-medium">Configure where Mission Control stores deliverables.</p>
+            </div>
+          </div>
+
+          <div className="space-y-5">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-widest text-mc-text-secondary mb-2">
                 Workspace Base Path
               </label>
               <input
@@ -157,7 +156,7 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-mc-text mb-2">
+              <label className="block text-xs font-bold uppercase tracking-widest text-mc-text-secondary mb-2">
                 Projects Path
               </label>
               <input
@@ -173,7 +172,7 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-mc-text mb-2">
+              <label className="block text-xs font-bold uppercase tracking-widest text-mc-text-secondary mb-2">
                 Default Project Name
               </label>
               <input
@@ -191,19 +190,21 @@ export default function SettingsPage() {
         </section>
 
         {/* Appearance Configuration */}
-        <section className="mb-8 p-6 mc-card">
-          <div className="flex items-center gap-2 mb-4">
-            <Palette className="w-5 h-5 text-mc-accent" />
-            <h2 className="text-xl font-semibold text-mc-text">Appearance</h2>
-          </div>
-          <p className="text-sm text-mc-text-secondary mb-4">
-            Customize how Mission Control looks.
-          </p>
-
-          <div className="space-y-4">
+        <section className="mb-8 p-6 mc-card shadow-none">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 rounded-xl bg-mc-bg flex items-center justify-center border border-mc-border/40 shadow-sm">
+              <Palette className="w-4 h-4 text-mc-text-secondary" />
+            </div>
             <div>
-              <label className="block text-sm font-medium text-mc-text mb-2">
-                Theme
+              <h2 className="text-lg font-semibold tracking-tight text-mc-text">Appearance</h2>
+              <p className="text-xs text-mc-text-secondary font-medium">Customize your visual experience.</p>
+            </div>
+          </div>
+
+          <div className="space-y-5">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-widest text-mc-text-secondary mb-2">
+                Theme Theme
               </label>
               <select
                 value={config.theme}
@@ -223,15 +224,15 @@ export default function SettingsPage() {
         {/* API Configuration */}
  
         {/* Environment Variables Note */}
-        <section className="p-8 bg-mc-accent/5 border border-mc-accent/10 rounded-[2.5rem] relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
+        <section className="p-8 bg-mc-bg-tertiary/30 border border-mc-border/30 rounded-[1.5rem] relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-105 transition-transform duration-700">
             <Settings className="w-32 h-32" />
           </div>
-          <h3 className="text-xl font-bold text-mc-accent mb-4 flex items-center gap-2">
-            <span>📝</span> Environment Variables
+          <h3 className="text-lg font-semibold tracking-tight text-mc-text mb-2 flex items-center gap-2">
+             Environment Variables
           </h3>
-          <p className="text-mc-text-secondary mb-6 leading-relaxed">
-            Infrastructure settings are sourced from <code className="px-2 py-1 bg-mc-bg-tertiary rounded-lg font-mono text-mc-accent">.env.local</code>.
+          <p className="text-sm text-mc-text-secondary mb-6 font-light">
+            Infrastructure logic defaults are sourced from <code className="px-1.5 py-0.5 bg-mc-bg rounded text-xs font-mono border border-mc-border/40">.env.local</code>.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
