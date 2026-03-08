@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import { X, Save, Trash2, Activity, Package, Bot, ClipboardList, Plus, Users } from 'lucide-react';
 import { useMissionControl } from '@/lib/store';
 import { triggerAutoDispatch, shouldTriggerAutoDispatch } from '@/lib/auto-dispatch';
-import { ActivityLog } from './ActivityLog';
+import { WorkspaceChat } from './WorkspaceChat';
 import { DeliverablesList } from './DeliverablesList';
 import { SessionsList } from './SessionsList';
 import { PlanningTab } from './PlanningTab';
@@ -184,7 +184,7 @@ export function TaskModal({ task, onClose, workspaceId }: TaskModalProps) {
     { id: 'overview' as TabType, label: 'Overview', icon: null },
     { id: 'planning' as TabType, label: 'Planning', icon: <ClipboardList className="w-4 h-4" /> },
     { id: 'team' as TabType, label: 'Team', icon: <Users className="w-4 h-4" /> },
-    { id: 'activity' as TabType, label: 'Activity', icon: <Activity className="w-4 h-4" /> },
+    { id: 'activity' as TabType, label: 'Comms', icon: <Activity className="w-4 h-4" /> },
     { id: 'deliverables' as TabType, label: 'Deliverables', icon: <Package className="w-4 h-4" /> },
     { id: 'sessions' as TabType, label: 'Sessions', icon: <Bot className="w-4 h-4" /> },
   ];
@@ -226,7 +226,7 @@ export function TaskModal({ task, onClose, workspaceId }: TaskModalProps) {
         )}
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto p-4 relative flex flex-col">
           {/* Overview Tab */}
           {activeTab === 'overview' && (
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -356,9 +356,9 @@ export function TaskModal({ task, onClose, workspaceId }: TaskModalProps) {
             <TeamTab taskId={task.id} workspaceId={workspaceId || task.workspace_id || 'default'} />
           )}
 
-          {/* Activity Tab */}
+          {/* Comms Tab */}
           {activeTab === 'activity' && task && (
-            <ActivityLog taskId={task.id} />
+            <WorkspaceChat taskId={task.id} />
           )}
 
           {/* Deliverables Tab */}
