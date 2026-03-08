@@ -5,3 +5,8 @@ export { DiscoverAgentsModal } from './DiscoverAgentsModal';
 export { MissionQueue } from './MissionQueue';
 export { TaskModal } from './TaskModal';
 export { LiveFeed } from './LiveFeed';
+export { WorkflowCanvas } from './WorkflowCanvas';
+export { TelemetryDashboard } from './TelemetryDashboard';
+export { ApprovalCenter } from './ApprovalCenter';
+export { KnowledgeManager } from './KnowledgeManager';
+export { SkillsMarket } from './SkillsMarket';

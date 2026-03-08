@@ -19,20 +19,20 @@ export function ChatInput({ taskId, disabled, onSubmitted }: ChatInputProps) {
 
     try {
       setIsSubmitting(true);
-      const res = await fetch(`/api/tasks/${taskId}/planning/answer`, {
+      const res = await fetch(`/api/tasks/${taskId}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answer: answer.trim() }),
+        body: JSON.stringify({ message: answer.trim() }),
       });
 
       if (res.ok) {
         setAnswer('');
         onSubmitted?.();
       } else {
-        console.error('Failed to submit answer');
+        console.error('Failed to send message');
       }
     } catch (error) {
-      console.error('Error submitting answer:', error);
+      console.error('Error sending message:', error);
     } finally {
       setIsSubmitting(false);
     }

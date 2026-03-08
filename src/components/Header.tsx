@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Zap, Settings, ChevronLeft, LayoutGrid, MessageSquare } from 'lucide-react';
+import { Zap, Settings, ChevronLeft, LayoutGrid, MessageSquare, Workflow, Activity, ShieldCheck, Database, Users } from 'lucide-react';
 import { useMissionControl } from '@/lib/store';
 import { format } from 'date-fns';
 import type { Workspace } from '@/lib/types';
@@ -68,6 +68,21 @@ export function Header({ workspace, isPortrait = true }: HeaderProps) {
               </div>
             </div>
 
+            <button onClick={() => router.push('/canvas')} className="min-h-11 min-w-11 p-2 hover:bg-mc-bg-tertiary rounded text-mc-text-secondary shrink-0" title="Workflow Canvas">
+              <Workflow className="w-5 h-5" />
+            </button>
+            <button onClick={() => router.push('/telemetry')} className="min-h-11 min-w-11 p-2 hover:bg-mc-bg-tertiary rounded text-mc-text-secondary shrink-0" title="Telemetry & Metrics">
+              <Activity className="w-5 h-5" />
+            </button>
+            <button onClick={() => router.push('/approvals')} className="min-h-11 min-w-11 p-2 hover:bg-mc-bg-tertiary rounded text-mc-text-secondary shrink-0" title="Approval Center">
+              <ShieldCheck className="w-5 h-5" />
+            </button>
+            <button onClick={() => router.push('/knowledge')} className="min-h-11 min-w-11 p-2 hover:bg-mc-bg-tertiary rounded text-mc-text-secondary shrink-0" title="Knowledge Base">
+              <Database className="w-5 h-5" />
+            </button>
+            <button onClick={() => router.push('/agents')} className="min-h-11 min-w-11 p-2 hover:bg-mc-bg-tertiary rounded text-mc-text-secondary shrink-0" title="Agent Skills Market">
+              <Users className="w-5 h-5" />
+            </button>
             <button onClick={() => router.push('/comms')} className="min-h-11 min-w-11 p-2 hover:bg-mc-bg-tertiary rounded text-mc-text-secondary shrink-0" title="Communications">
               <MessageSquare className="w-5 h-5" />
             </button>
@@ -153,6 +168,21 @@ export function Header({ workspace, isPortrait = true }: HeaderProps) {
               <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-mc-accent-green animate-pulse' : 'bg-mc-accent-red'}`} />
               {isOnline ? 'ONLINE' : 'OFFLINE'}
             </div>
+            <button onClick={() => router.push('/canvas')} className="min-h-11 min-w-11 p-2 hover:bg-mc-bg-tertiary rounded text-mc-text-secondary" title="Workflow Canvas">
+              <Workflow className="w-5 h-5" />
+            </button>
+            <button onClick={() => router.push('/telemetry')} className="min-h-11 min-w-11 p-2 hover:bg-mc-bg-tertiary rounded text-mc-text-secondary" title="Telemetry & Metrics">
+              <Activity className="w-5 h-5" />
+            </button>
+            <button onClick={() => router.push('/approvals')} className="min-h-11 min-w-11 p-2 hover:bg-mc-bg-tertiary rounded text-mc-text-secondary" title="Approval Center">
+              <ShieldCheck className="w-5 h-5" />
+            </button>
+            <button onClick={() => router.push('/knowledge')} className="min-h-11 min-w-11 p-2 hover:bg-mc-bg-tertiary rounded text-mc-text-secondary" title="Knowledge Base">
+              <Database className="w-5 h-5" />
+            </button>
+            <button onClick={() => router.push('/agents')} className="min-h-11 min-w-11 p-2 hover:bg-mc-bg-tertiary rounded text-mc-text-secondary" title="Agent Skills Market">
+              <Users className="w-5 h-5" />
+            </button>
             <button onClick={() => router.push('/comms')} className="min-h-11 min-w-11 p-2 hover:bg-mc-bg-tertiary rounded text-mc-text-secondary" title="Communications">
               <MessageSquare className="w-5 h-5" />
             </button>

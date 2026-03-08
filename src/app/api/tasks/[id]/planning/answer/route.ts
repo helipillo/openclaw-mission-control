@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { getOpenClawClient } from '@/lib/openclaw/client';
 import { extractJSON } from '@/lib/planning-utils';
+import { broadcast } from '@/lib/events';
+import { v4 as uuidv4 } from 'uuid';
+import type { TaskActivity } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 // POST /api/tasks/[id]/planning/answer - Submit an answer and get next question
@@ -112,6 +115,30 @@ If planning is complete, respond with JSON:
     getDb().prepare(`
       UPDATE tasks SET planning_messages = ? WHERE id = ?
     `).run(JSON.stringify(messages), taskId);
+
+    // Also log this as a task activity so it shows up in the Comms hub
+    const activityId = uuidv4();
+    const now = new Date().toISOString();
+    
+    getDb().prepare(`
+      INSERT INTO task_activities (id, task_id, agent_id, activity_type, message, created_at)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(activityId, taskId, null, 'message', answerText, now);
+
+    // Broadcast the activity so the UI updates in real-time
+    const activity: TaskActivity = {
+      id: activityId,
+      task_id: taskId,
+      agent_id: undefined,
+      activity_type: 'message',
+      message: answerText,
+      created_at: now
+    };
+
+    broadcast({
+      type: 'activity_logged',
+      payload: activity
+    });
 
     // Poll for response via OpenClaw API - removed aggressive polling
     // Return immediately and let frontend poll for updates
