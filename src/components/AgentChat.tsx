@@ -21,7 +21,8 @@ export function AgentChat({ agentId }: AgentChatProps) {
       const res = await fetch(`/api/agents`);
       if (res.ok) {
         const body = await res.json();
-        const found = body.agents.find((a: Agent) => a.id === agentId);
+        const agentsList = Array.isArray(body) ? body : body.agents || [];
+        const found = agentsList.find((a: Agent) => a.id === agentId);
         if (found) setAgent(found);
       }
     } catch (e) {

@@ -34,7 +34,7 @@ export function ChannelsSidebar({ onSelectChannel, selectedChannelId }: Channels
           const agentsData = await agentsRes.json();
           setWorkspaces(wsData);
           setTasks(tasksData);
-          setAgents(agentsData.agents.filter((a: Agent) => a.status !== 'offline'));
+          setAgents(agentsData.filter((a: Agent) => a.status !== 'offline'));
           
           // Expand all by default
           const initialExpanded: Record<string, boolean> = {};

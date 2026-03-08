@@ -12,12 +12,15 @@ import ReactFlow, {
   useNodesState, 
   useEdgesState,
   Panel,
-  MarkerType
+  MarkerType,
+  Handle,
+  Position
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useMissionControl } from '@/lib/store';
-import { Bot, CheckSquare, Zap, Loader2, MousePointer2, Plus } from 'lucide-react';
+import { Bot, CheckSquare, Zap, Loader2, MousePointer2, Plus, UserCircle } from 'lucide-react';
 import { TaskModal } from './TaskModal';
+import { AgentModal } from './AgentModal';
 
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
@@ -30,7 +33,7 @@ const nodeTypes = {
 
 function AgentNode({ data }: { data: any }) {
   return (
-    <div className="px-4 py-3 rounded-2xl bg-mc-bg-secondary border border-mc-accent/30 shadow-lg min-w-[180px] glass-effect-heavy animate-in zoom-in-95 duration-300">
+    <div className="px-4 py-3 rounded-2xl bg-mc-bg-secondary border border-mc-accent/30 shadow-lg min-w-[180px] glass-effect-heavy animate-in zoom-in-95 duration-300 relative group">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-mc-accent/10 border border-mc-accent/20 flex items-center justify-center text-xl">
           {data.emoji || '🤖'}
@@ -40,6 +43,11 @@ function AgentNode({ data }: { data: any }) {
           <div className="text-sm font-bold text-mc-text">{data.label}</div>
         </div>
       </div>
+      <Handle 
+        type="source" 
+        position={Position.Right} 
+        className="!w-3 !h-3 !bg-mc-accent !border-2 !border-white opacity-0 group-hover:opacity-100 transition-opacity" 
+      />
     </div>
   );
 }
@@ -54,7 +62,12 @@ function TaskNode({ data }: { data: any }) {
   };
 
   return (
-    <div className={`px-4 py-3 rounded-2xl border ${statusColors[data.status] || 'border-mc-border'} shadow-md min-w-[200px] glass-effect animate-in slide-in-from-top-2 duration-300`}>
+    <div className={`px-4 py-3 rounded-2xl border ${statusColors[data.status] || 'border-mc-border'} shadow-md min-w-[200px] glass-effect animate-in slide-in-from-top-2 duration-300 relative group`}>
+      <Handle 
+        type="target" 
+        position={Position.Left} 
+        className="!w-3 !h-3 !bg-mc-text-secondary !border-2 !border-white opacity-0 group-hover:opacity-100 transition-opacity" 
+      />
       <div className="flex items-start gap-3">
         <div className="mt-1">
           <CheckSquare className="w-4 h-4 text-mc-text opacity-50" />
@@ -77,18 +90,50 @@ export function WorkflowCanvas() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [editingTask, setEditingTask] = useState<any>(null);
+  const [editingAgent, setEditingAgent] = useState<any>(null);
+  const [showNewTask, setShowNewTask] = useState(false);
 
-  const onConnect = useCallback((params: Connection) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
+  const onConnect = useCallback(async (params: Connection) => {
+    const sourceId = params.source; // agent
+    const targetId = params.target; // task
+
+    if (sourceId?.startsWith('agent-') && targetId?.startsWith('task-')) {
+      const agentId = sourceId.replace('agent-', '');
+      const taskId = targetId.replace('task-', '');
+
+      try {
+        const res = await fetch(`/api/tasks/${taskId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ assigned_agent_id: agentId }),
+        });
+        if (!res.ok) throw new Error('Failed to assign agent');
+        // Nodes will re-sync via the store effect when SSE/store update triggers
+      } catch (err) {
+        console.error('Canvas: Failed to assign agent:', err);
+      }
+    }
+    
+    // Optimistically add the edge for visual feedback
+    setEdges((eds) => addEdge({ 
+      ...params, 
+      animated: true,
+      style: { stroke: 'var(--mc-accent)', strokeWidth: 2 },
+      markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--mc-accent)' }
+    }, eds));
+  }, [setEdges]);
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     if (node.type === 'task') {
       const taskId = node.id.replace('task-', '');
       const task = tasks.find((t) => t.id === taskId);
-      if (task) {
-        setEditingTask(task);
-      }
+      if (task) setEditingTask(task);
+    } else if (node.type === 'agent') {
+      const agentId = node.id.replace('agent-', '');
+      const agent = agents.find((a) => a.id === agentId);
+      if (agent) setEditingAgent(agent);
     }
-  }, [tasks]);
+  }, [tasks, agents]);
 
   // Sync state from Mission Control store
   useEffect(() => {
@@ -99,7 +144,7 @@ export function WorkflowCanvas() {
 
     // Layout config (simple horizontal split for now)
     const AGENT_X = 100;
-    const TASK_X = 500;
+    const TASK_X = 550;
     const Y_SPACING = 120;
 
     // Add Agent Nodes
@@ -109,6 +154,7 @@ export function WorkflowCanvas() {
         type: 'agent',
         position: { x: AGENT_X, y: 50 + index * Y_SPACING },
         data: { label: agent.name, emoji: agent.avatar_emoji },
+        dragHandle: '.animate-in', // Only allow dragging from the card itself
       });
     });
 
@@ -119,6 +165,7 @@ export function WorkflowCanvas() {
         type: 'task',
         position: { x: TASK_X, y: 50 + index * Y_SPACING },
         data: { label: task.title, status: task.status },
+        dragHandle: '.animate-in',
       });
 
       // Create edge if task is assigned to an agent
@@ -183,36 +230,56 @@ export function WorkflowCanvas() {
               </div>
             </div>
             <div className="border-t border-mc-border/20 pt-3 flex gap-2">
-               <button className="mc-button-secondary !py-2 flex-1 text-[10px] uppercase font-bold">
-                 <MousePointer2 className="w-3 h-3" /> Select
-               </button>
-               <button className="mc-button-primary !py-2 flex-1 text-[10px] uppercase font-bold">
+               <button 
+                  onClick={() => setShowNewTask(true)}
+                  className="mc-button-primary !py-2 flex-1 text-[10px] uppercase font-bold flex items-center justify-center gap-1"
+               >
                  <Plus className="w-3 h-3" /> New Task
                </button>
             </div>
           </div>
         </Panel>
 
+        <Panel position="bottom-center" className="p-4">
+           <div className="glass-effect-heavy border border-mc-accent/20 rounded-full px-4 py-2 text-[10px] font-bold text-mc-text uppercase tracking-widest flex items-center gap-3">
+              <span className="flex items-center gap-1"><MousePointer2 className="w-3 h-3" /> Click to Edit</span>
+              <div className="w-px h-3 bg-mc-border/50"></div>
+              <span className="flex items-center gap-1"><Bot className="w-3.5 h-3.5" /> Drag Agent to Task to Assign</span>
+           </div>
+        </Panel>
+
         <Panel position="top-left" className="p-4">
            <div className="text-mc-text-secondary/30 text-[10px] font-bold uppercase tracking-[0.2em] [writing-mode:vertical-lr] hover:text-mc-accent transition-colors">
-             Mission Control // Workflow Canvas v1.0
+             Mission Control // Workflow Canvas v1.1
            </div>
         </Panel>
       </ReactFlow>
 
-      {editingTask && (
+      {(editingTask || showNewTask) && (
         <TaskModal 
-          task={editingTask} 
-          onClose={() => setEditingTask(null)} 
+          task={editingTask || undefined} 
+          onClose={() => { setEditingTask(null); setShowNewTask(false); }} 
+        />
+      )}
+
+      {editingAgent && (
+        <AgentModal
+          agent={editingAgent}
+          onClose={() => setEditingAgent(null)}
         />
       )}
 
       <style jsx global>{`
         .react-flow__handle {
-          width: 8px;
-          height: 8px;
-          background: var(--mc-accent);
-          border: 2px solid white;
+          width: 8px !important;
+          height: 8px !important;
+          background: var(--mc-accent) !important;
+          border: 2px solid white !important;
+          z-index: 10;
+        }
+        .react-flow__edge-path {
+          stroke-width: 2;
+          transition: stroke 0.3s ease;
         }
         .react-flow__controls-button {
           background: transparent !important;
