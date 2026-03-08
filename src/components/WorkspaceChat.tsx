@@ -209,9 +209,11 @@ export function WorkspaceChat({ taskId }: WorkspaceChatProps) {
         <div ref={scrollRef} className="h-4"></div>
       </div>
 
-      {(needsInput || activities.length > 0) && (
-        <ChatInput taskId={taskId} onSubmitted={() => loadActivities(false)} />
-      )}
+      {/* Always show input to allow user communication */}
+      <ChatInput 
+        taskId={taskId} 
+        onSubmitted={() => loadActivities(false)} 
+      />
     </div>
   );
 }
