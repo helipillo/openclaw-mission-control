@@ -363,7 +363,9 @@ export type SSEEventType =
   | 'deliverable_added'
   | 'agent_spawned'
   | 'agent_updated'
-  | 'agent_completed';
+  | 'agent_completed'
+  | 'agent_presence'
+  | 'direct_message';
 
 export interface SSEEvent {
   type: SSEEventType;
@@ -375,5 +377,9 @@ export interface SSEEvent {
     deleted?: boolean;
   } | {
     id: string;  // For task_deleted events
+  } | {
+    agentId: string;
+    status: AgentStatus;
+    lastSeen: string;
   };
 }

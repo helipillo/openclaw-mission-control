@@ -157,7 +157,7 @@ export function Header({ workspace, isPortrait = true }: HeaderProps) {
           )}
 
           <div className="flex items-center gap-2 md:gap-4">
-            <span className="hidden md:block text-mc-text-secondary text-sm font-mono">{format(currentTime, 'HH:mm:ss')}</span>
+            <span suppressHydrationWarning className="hidden md:block text-mc-text-secondary text-sm font-mono">{format(currentTime, 'HH:mm:ss')}</span>
             <div
               className={`flex items-center gap-2 px-2 md:px-3 py-1 rounded border text-xs md:text-sm font-medium ${
                 isOnline

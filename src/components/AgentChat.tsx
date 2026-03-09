@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ChatInput } from './ChatInput';
-import type { TaskActivity, Agent } from '@/lib/types';
+import type { TaskActivity, Agent, AgentStatus } from '@/lib/types';
 import { Bot, User, Loader2 } from 'lucide-react';
 
 interface AgentChatProps {
@@ -14,16 +14,16 @@ export function AgentChat({ agentId }: AgentChatProps) {
   const [activities, setActivities] = useState<TaskActivity[]>([]);
   const [agent, setAgent] = useState<Agent | null>(null);
   const [loading, setLoading] = useState(true);
+  const [agentStatus, setAgentStatus] = useState<AgentStatus>('offline');
   const scrollRef = useRef<HTMLDivElement>(null);
+  const lastCountRef = useRef(0);
   
   const loadAgent = useCallback(async () => {
     try {
-      const res = await fetch(`/api/agents`);
+      const res = await fetch(`/api/agents/${agentId}`);
       if (res.ok) {
         const body = await res.json();
-        const agentsList = Array.isArray(body) ? body : body.agents || [];
-        const found = agentsList.find((a: Agent) => a.id === agentId);
-        if (found) setAgent(found);
+        setAgent(body);
       }
     } catch (e) {
       console.error(e);
@@ -65,12 +65,51 @@ export function AgentChat({ agentId }: AgentChatProps) {
     if (agent) {
       loadActivities(true);
     }
-    // Set a very basic polling for direct messages since we don't have direct SSE for agent history yet
-    const interval = setInterval(() => {
-      if (agent) loadActivities(false);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [agent, loadActivities]);
+    
+    // Check initial presence (we don't have a GET endpoint for this right now, 
+    // but the next SSE event will update it. Or assume offline until pinged.)
+    
+    const eventSource = new EventSource('/api/events/stream');
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        
+        // Handle new direct message
+        if (data.type === 'activity_logged' && data.payload.task_id === `agent-${agentId}`) {
+          setActivities(prev => {
+            if (prev.some(a => a.id === data.payload.id)) return prev;
+            
+            // Re-hydrate the agent if it's the assistant's message
+            const hydratedActivity = {
+              ...data.payload,
+              agent: data.payload.agent_id ? agent : undefined
+            };
+
+            const newActivities = [...prev, hydratedActivity];
+            setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+            return newActivities;
+          });
+        }
+
+        // Handle presence updates
+        if (data.type === 'agent_presence' && data.payload.agentId === agentId) {
+          setAgentStatus(data.payload.status);
+        }
+      } catch (err) {
+        console.error('SSE Parse Error:', err);
+      }
+    };
+
+    eventSource.onerror = (err) => {
+      console.error('SSE Connection Error:', err);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, [agentId, agent, loadActivities]);
 
   if (loading || !agent) {
     return (
@@ -104,8 +143,14 @@ export function AgentChat({ agentId }: AgentChatProps) {
     <div className="flex flex-col h-full bg-mc-bg-secondary/30 rounded-[1.5rem] overflow-hidden border border-mc-border shadow-sm flex-1">
       <div className="p-4 border-b border-mc-border/50 bg-mc-bg/50 backdrop-blur-md sticky top-0 z-10 flex justify-between items-center">
         <div className="flex items-center gap-2 overflow-hidden">
-          <div className="w-6 h-6 rounded-full bg-mc-bg-tertiary border border-mc-border/40 flex items-center justify-center text-xs shrink-0 shadow-sm">
-            {agent?.avatar_emoji || '🤖'}
+          <div className="relative">
+            <div className="w-6 h-6 rounded-full bg-mc-bg-tertiary border border-mc-border/40 flex items-center justify-center text-xs shrink-0 shadow-sm relative overflow-hidden group">
+              {agent?.avatar_emoji || '🤖'}
+            </div>
+            <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-mc-bg-secondary/30 ${
+              agentStatus === 'working' ? 'bg-green-500' :
+              agentStatus === 'standby' ? 'bg-yellow-500' : 'bg-gray-500'
+            }`}></div>
           </div>
           <h3 className="text-sm font-bold tracking-widest uppercase text-mc-text truncate">
             Direct Message: {agent?.name || 'Agent'}
@@ -121,7 +166,7 @@ export function AgentChat({ agentId }: AgentChatProps) {
           <div className="h-full flex flex-col items-center justify-center text-center p-8 opacity-60">
              <Bot className="w-12 h-12 mb-4 text-mc-text-secondary opacity-30" />
              <p className="text-sm text-mc-text tracking-wide mb-2 font-semibold">No Secure Comms Yet</p>
-             <p className="text-xs text-mc-text-secondary leading-relaxed">You haven't sent any direct messages to {agent.name}.</p>
+             <p className="text-xs text-mc-text-secondary leading-relaxed">You haven&apos;t sent any direct messages to {agent.name}.</p>
           </div>
         ) : (
           groupedActivities.map((group, groupIndex) => {

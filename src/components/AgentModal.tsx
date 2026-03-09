@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Save, Trash2 } from 'lucide-react';
+import { X, Save, Trash2, Zap, ZapOff, Loader2 } from 'lucide-react';
 import { useMissionControl } from '@/lib/store';
 import type { Agent, AgentStatus } from '@/lib/types';
 
@@ -21,6 +21,8 @@ export function AgentModal({ agent, onClose, workspaceId, onAgentCreated }: Agen
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [defaultModel, setDefaultModel] = useState<string>('');
   const [modelsLoading, setModelsLoading] = useState(true);
+  const { agentOpenClawSessions, setAgentOpenClawSession } = useMissionControl();
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const [form, setForm] = useState({
     name: agent?.name || '',
@@ -110,6 +112,36 @@ export function AgentModal({ agent, onClose, workspaceId, onAgentCreated }: Agen
       }
     } catch (error) {
       console.error('Failed to delete agent:', error);
+    }
+  };
+
+  const handleConnectToOpenClaw = async () => {
+    if (!agent) return;
+    setIsConnecting(true);
+
+    try {
+      const existingSession = agentOpenClawSessions[agent.id];
+
+      if (existingSession) {
+        const res = await fetch(`/api/agents/${agent.id}/openclaw`, { method: 'DELETE' });
+        if (res.ok) {
+          setAgentOpenClawSession(agent.id, null);
+        }
+      } else {
+        const res = await fetch(`/api/agents/${agent.id}/openclaw`, { method: 'POST' });
+        if (res.ok) {
+          const data = await res.json();
+          setAgentOpenClawSession(agent.id, data.session);
+        } else {
+          const error = await res.json();
+          console.error('Failed to connect to OpenClaw:', error);
+          alert(`Failed to connect: ${error.error || 'Unknown error'}`);
+        }
+      }
+    } catch (error) {
+      console.error('OpenClaw connection error:', error);
+    } finally {
+      setIsConnecting(false);
     }
   };
 
@@ -272,6 +304,42 @@ export function AgentModal({ agent, onClose, workspaceId, onAgentCreated }: Agen
                   AI model used by this agent. Leave empty to use OpenClaw default.
                 </p>
               </div>
+              {/* OpenClaw Connection */}
+              {agent && (
+                <div className="pt-4 border-t border-mc-border">
+                  <label className="block text-sm font-medium mb-2">OpenClaw Gateway</label>
+                  <button
+                    type="button"
+                    onClick={handleConnectToOpenClaw}
+                    disabled={isConnecting}
+                    className={`w-full min-h-11 flex items-center justify-center gap-2 px-4 rounded text-sm transition-colors ${
+                      agentOpenClawSessions[agent.id]
+                        ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                        : 'bg-mc-bg border border-mc-border text-mc-text-secondary hover:bg-mc-bg-tertiary hover:text-mc-text'
+                    }`}
+                  >
+                    {isConnecting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Processing Connection...</span>
+                      </>
+                    ) : agentOpenClawSessions[agent.id] ? (
+                      <>
+                        <Zap className="w-4 h-4" />
+                        <span>Linked to Gateway</span>
+                      </>
+                    ) : (
+                      <>
+                        <ZapOff className="w-4 h-4" />
+                        <span>Link to OpenClaw</span>
+                      </>
+                    )}
+                  </button>
+                  <p className="text-xs text-mc-text-secondary mt-2">
+                    Linking an agent to OpenClaw allows for direct messaging and remote execution.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 

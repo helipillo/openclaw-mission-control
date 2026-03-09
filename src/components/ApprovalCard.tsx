@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { Task } from '@/lib/types';
+import { useMissionControl } from '@/lib/store';
 import { 
   ShieldAlert, Check, X, ArrowRight, User, 
-  Terminal, ExternalLink, AlertTriangle, Fingerprint
+  Terminal, ExternalLink, AlertTriangle, Fingerprint, Loader2
 } from 'lucide-react';
 
 interface ApprovalCardProps {
@@ -12,6 +13,42 @@ interface ApprovalCardProps {
 }
 
 export function ApprovalCard({ task }: ApprovalCardProps) {
+  const { updateTask, setSelectedTask } = useMissionControl();
+  const [loading, setLoading] = useState(false);
+
+  const handleAction = async (action: 'authorize' | 'deny') => {
+    setLoading(true);
+    try {
+      let nextStatus = task.status;
+      
+      if (action === 'authorize') {
+        switch (task.status) {
+          case 'planning': nextStatus = 'assigned'; break;
+          case 'review': nextStatus = 'in_progress'; break;
+          case 'verification': nextStatus = 'done'; break;
+        }
+      } else {
+        // Deny reverts to inbox for re-triage
+        nextStatus = 'inbox';
+      }
+
+      const res = await fetch(`/api/tasks/${task.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+
+      if (res.ok) {
+        const updatedTask = await res.json();
+        updateTask(updatedTask);
+      }
+    } catch (error) {
+      console.error('Failed to update task status:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getStatusConfig = (status: string) => {
     switch (status) {
       case 'planning':
@@ -99,16 +136,28 @@ export function ApprovalCard({ task }: ApprovalCardProps) {
         </div>
 
         <div className="flex items-center justify-between pt-4 border-t border-mc-border/10">
-           <button className="flex items-center gap-2 text-xs font-bold text-mc-text-secondary hover:text-mc-text transition-colors">
+           <button 
+             onClick={() => setSelectedTask(task)}
+             className="flex items-center gap-2 text-xs font-bold text-mc-text-secondary hover:text-mc-text transition-colors"
+           >
              <ExternalLink className="w-3 h-3" /> View Context
            </button>
            
            <div className="flex items-center gap-3">
-              <button className="mc-button-secondary !py-2 !px-4 text-[10px] uppercase font-bold flex items-center gap-2 text-mc-accent-red hover:bg-mc-accent-red/10 border-mc-accent-red/20">
+              <button 
+                onClick={() => handleAction('deny')}
+                disabled={loading}
+                className="mc-button-secondary !py-2 !px-4 text-[10px] uppercase font-bold flex items-center gap-2 text-mc-accent-red hover:bg-mc-accent-red/10 border-mc-accent-red/20 disabled:opacity-50"
+              >
                 <X className="w-3 h-3" /> Deny
               </button>
-              <button className="mc-button-primary !py-2 !px-6 text-[10px] uppercase font-bold flex items-center gap-2">
-                <Check className="w-3 h-3" /> Authorize
+              <button 
+                onClick={() => handleAction('authorize')}
+                disabled={loading}
+                className="mc-button-primary !py-2 !px-6 text-[10px] uppercase font-bold flex items-center gap-2 disabled:opacity-50"
+              >
+                {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                Authorize
               </button>
            </div>
         </div>

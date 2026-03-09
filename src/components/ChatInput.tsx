@@ -34,7 +34,8 @@ export function ChatInput({ taskId, disabled, onSubmitted, isAgentDirect }: Chat
         setAnswer('');
         onSubmitted?.();
       } else {
-        console.error('Failed to send message');
+        const errorData = await res.json().catch(() => ({}));
+        console.error(`Failed to send message (${res.status}):`, errorData.error || res.statusText);
       }
     } catch (error) {
       console.error('Error sending message:', error);

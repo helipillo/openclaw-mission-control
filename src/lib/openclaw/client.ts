@@ -410,6 +410,7 @@ export class OpenClawClient extends EventEmitter {
 
     // Handle events/notifications
     if (data.method) {
+      console.log(`[OpenClaw EVENT RAW] method: ${data.method}`, JSON.stringify(data.params));
       this.emit('notification', data);
       this.emit(data.method, data.params);
     }
@@ -460,12 +461,17 @@ export class OpenClawClient extends EventEmitter {
     return this.call<OpenClawSessionInfo[]>('sessions.list');
   }
 
-  async getSessionHistory(sessionId: string): Promise<unknown[]> {
-    return this.call<unknown[]>('sessions.history', { session_id: sessionId });
+  async getSessionHistory(sessionId: string): Promise<unknown> {
+    return this.call<unknown>('chat.history', { sessionKey: sessionId, limit: 50 });
   }
 
   async sendMessage(sessionId: string, content: string): Promise<void> {
-    await this.call('sessions.send', { session_id: sessionId, content });
+    const idempotencyKey = crypto.randomUUID();
+    await this.call('chat.send', { 
+      sessionKey: sessionId, 
+      message: content,
+      idempotencyKey 
+    });
   }
 
   async createSession(channel: string, peer?: string): Promise<OpenClawSessionInfo> {

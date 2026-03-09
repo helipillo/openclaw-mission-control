@@ -18,6 +18,7 @@ export function ChannelsSidebar({ onSelectChannel, selectedChannelId }: Channels
   const [searchQuery, setSearchQuery] = useState('');
 
   const [unreadTasks, setUnreadTasks] = useState<Record<string, boolean>>({});
+  const [agentStatuses, setAgentStatuses] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,6 +57,13 @@ export function ChannelsSidebar({ onSelectChannel, selectedChannelId }: Channels
             }
           });
           setUnreadTasks(unreads);
+          
+          // Initial agent statuses (can be improved with a dedicated GET endpoint)
+          const statuses: Record<string, string> = {};
+          agentsData.forEach((a: Agent) => {
+             statuses[a.id] = a.status;
+          });
+          setAgentStatuses(statuses);
         }
       } catch (error) {
         console.error('Failed to fetch sidebar data:', error);
@@ -79,6 +87,8 @@ export function ChannelsSidebar({ onSelectChannel, selectedChannelId }: Channels
           if (taskId !== selectedChannelId) {
             setUnreadTasks(prev => ({ ...prev, [taskId]: true }));
           }
+        } else if (data.type === 'agent_presence') {
+          setAgentStatuses(prev => ({ ...prev, [data.payload.agentId]: data.payload.status }));
         }
       } catch (err) {
         // Silently fail SSE for sidebar
@@ -172,7 +182,10 @@ export function ChannelsSidebar({ onSelectChannel, selectedChannelId }: Channels
                    >
                      <div className="relative">
                        <Bot className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-white' : 'text-mc-text-secondary group-hover:opacity-100'}`} />
-                       <div className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 bg-green-500 rounded-full border border-mc-bg"></div>
+                       <div className={`absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full border border-mc-bg ${
+                          agentStatuses[agent.id] === 'working' ? 'bg-green-500' :
+                          agentStatuses[agent.id] === 'standby' ? 'bg-yellow-500' : 'bg-gray-500'
+                       }`}></div>
                      </div>
                      <span className={`truncate flex-1 text-left ${isSelected ? 'font-bold' : 'font-medium'}`}>
                        {agent.name}

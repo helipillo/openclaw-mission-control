@@ -230,36 +230,34 @@ export function AgentsSidebar({ workspaceId, mobileMode = false, isPortrait = tr
                 <span className={`text-xs px-2 py-0.5 rounded uppercase ${getStatusBadge(agent.status)}`}>{agent.status}</span>
               </button>
 
-              {!!agent.is_master && (
-                <div className="px-2 pb-2">
-                  <button
-                    onClick={(e) => handleConnectToOpenClaw(agent, e)}
-                    disabled={isConnecting}
-                    className={`w-full min-h-11 flex items-center justify-center gap-2 px-2 rounded text-xs transition-colors ${
-                      openclawSession
-                        ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
-                        : 'bg-mc-bg text-mc-text-secondary hover:bg-mc-bg-tertiary hover:text-mc-text'
-                    }`}
-                  >
-                    {isConnecting ? (
-                      <>
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                        <span>Connecting...</span>
-                      </>
-                    ) : openclawSession ? (
-                      <>
-                        <Zap className="w-3 h-3" />
-                        <span>OpenClaw Connected</span>
-                      </>
-                    ) : (
-                      <>
-                        <ZapOff className="w-3 h-3" />
-                        <span>Connect to OpenClaw</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
+              <div className="px-2 pb-2">
+                <button
+                  onClick={(e) => handleConnectToOpenClaw(agent, e)}
+                  disabled={isConnecting}
+                  className={`w-full min-h-11 flex items-center justify-center gap-2 px-2 rounded text-xs transition-colors ${
+                    openclawSession
+                      ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                      : 'bg-mc-bg text-mc-text-secondary hover:bg-mc-bg-tertiary hover:text-mc-text'
+                  }`}
+                >
+                  {isConnecting ? (
+                    <>
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span>Connecting...</span>
+                    </>
+                  ) : openclawSession ? (
+                    <>
+                      <Zap className="w-3 h-3" />
+                      <span>OpenClaw Connected</span>
+                    </>
+                  ) : (
+                    <>
+                      <ZapOff className="w-3 h-3" />
+                      <span>Connect to OpenClaw</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           );
         })}

@@ -254,7 +254,7 @@ export async function GET(
 
             // Log this assistant message to task_activities so it shows in Comms Hub
             try {
-              let displayMessage = 'Planning complete. Generating agents and execution plan...';
+              const displayMessage = 'Planning complete. Generating agents and execution plan...';
               const activityId = crypto.randomUUID();
               const now = new Date().toISOString();
               
@@ -306,7 +306,7 @@ export async function GET(
             // Log this assistant message to task_activities so it shows in Comms Hub
             try {
               const opts = normalizedOptions.map(o => o.label).join(' | ');
-              let displayMessage = `${parsed.question}\n\nOptions: ${opts}`;
+              const displayMessage = `${parsed.question}\n\nOptions: ${opts}`;
               const activityId = crypto.randomUUID();
               const now = new Date().toISOString();
               

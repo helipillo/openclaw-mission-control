@@ -4,6 +4,32 @@ import { broadcast } from '@/lib/events';
 
 export const dynamic = 'force-dynamic';
 
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id: agentId } = await params;
+  try {
+    const db = getDb();
+    const agent = db.prepare('SELECT skills FROM agents WHERE id = ?').get(agentId) as any;
+    if (!agent) {
+      return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
+    }
+    let skills: string[] = [];
+    if (agent.skills) {
+      try {
+        skills = JSON.parse(agent.skills);
+      } catch {
+        skills = [];
+      }
+    }
+    return NextResponse.json(skills);
+  } catch (error) {
+    console.error('Failed to fetch agent skills:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -40,7 +66,7 @@ export async function POST(
       newSkills = newSkills.filter((s: string) => s !== skillId);
     }
 
-    run('UPDATE agents SET skills = ?, updated_at = datetime("now") WHERE id = ?', [JSON.stringify(newSkills), agentId]);
+    run('UPDATE agents SET skills = ?, updated_at = datetime(\'now\') WHERE id = ?', [JSON.stringify(newSkills), agentId]);
 
     // Broadcast agent update
     broadcast({ 

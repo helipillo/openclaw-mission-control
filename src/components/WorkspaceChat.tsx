@@ -18,7 +18,8 @@ export function WorkspaceChat({ taskId }: WorkspaceChatProps) {
   const lastCountRef = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [task, setTask] = useState<{title: string} | null>(null);
-  
+  const [agentStatuses, setAgentStatuses] = useState<Record<string, string>>({});
+
   const checkStatus = useCallback(async () => {
     try {
       const res = await fetch(`/api/tasks/${taskId}`);
@@ -88,6 +89,11 @@ export function WorkspaceChat({ taskId }: WorkspaceChatProps) {
         if (data.type === 'task_updated' && data.payload.id === taskId) {
           setTask(data.payload);
           setNeedsInput(data.payload.status === 'planning');
+        }
+
+        // Handle agent presence
+        if (data.type === 'agent_presence') {
+          setAgentStatuses(prev => ({ ...prev, [data.payload.agentId]: data.payload.status }));
         }
       } catch (err) {
         console.error('SSE Parse Error:', err);
@@ -162,8 +168,16 @@ export function WorkspaceChat({ taskId }: WorkspaceChatProps) {
             return (
               <div key={groupIndex} className={`flex gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
                 {/* Avatar */}
-                <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-sm shadow-sm ${isUser ? 'bg-mc-accent text-white' : 'bg-mc-bg-tertiary border border-mc-border/40'}`}>
-                   {isUser ? <User className="w-4 h-4" /> : <span>{group[0].agent?.avatar_emoji || '🤖'}</span>}
+                <div className="relative shrink-0">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-sm ${isUser ? 'bg-mc-accent text-white' : 'bg-mc-bg-tertiary border border-mc-border/40'}`}>
+                     {isUser ? <User className="w-4 h-4" /> : <span>{group[0].agent?.avatar_emoji || '🤖'}</span>}
+                  </div>
+                  {!isUser && group[0].agent && agentStatuses[group[0].agent.id] && (
+                    <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-mc-bg-secondary/30 ${
+                      agentStatuses[group[0].agent.id] === 'working' ? 'bg-green-500' :
+                      agentStatuses[group[0].agent.id] === 'standby' ? 'bg-yellow-500' : 'bg-gray-500'
+                    }`}></div>
+                  )}
                 </div>
                 
                 {/* Bubble Container */}
